@@ -1,0 +1,35 @@
+[tool.ruff]
+line-length = 130
+target-version = "py310"
+exclude = [
+    ".git",
+    "__pycache__",
+    "*.egg-info",
+    "kaolrm/models/encoders/dinov2",  # vendored third-party code
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "F403",  # star imports
+    "F405",  # star import usage
+    "B006",  # mutable default argument
+    "B007",  # unused loop variable
+    "B008",  # function call in default argument
+    "UP007", # use X | Y for type annotations (needs Python 3.10+)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["kaolrm"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

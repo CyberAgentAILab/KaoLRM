@@ -1,0 +1,10 @@
+source_size: 224 # 336 also fine 
+render_size: 192
+num_sampling: 8000
+synth_focal: 0.75
+skip_video: false
+
+source_cam_dist: 2.0
+render_views: 160
+render_fps: 40
+frame_size: 2

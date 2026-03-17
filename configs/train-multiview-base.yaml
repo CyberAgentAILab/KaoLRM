@@ -1,0 +1,119 @@
+
+experiment:
+    type: lrm
+    seed: 42
+    parent: final-base
+    child: multiview_ablation
+
+model:
+    camera_embed_dim: 1024
+    transformer_dim: 768  
+    transformer_layers: 12 
+    transformer_heads: 12
+    triplane_low_res: 32
+    triplane_high_res: 64
+    triplane_dim: 48
+    encoder_type: dinov2
+    encoder_model_name: dinov2_vitb14_reg
+    encoder_feat_dim: 768
+    encoder_freeze: false
+
+dataset:
+    subsets:
+        -   name: objaverse
+            root_dir: /data/datasets/FaceScape/rendering
+            meta_path:
+                train: /data/datasets/FaceScape/all_16873.json
+                val: 
+            sample_rate: 0.2
+
+        -   name: objaverse
+            root_dir: /data/datasets/Multiface/rendering
+            meta_path:
+                train: /data/datasets/Multiface/all_3787.json
+                val: 
+            sample_rate: 1.0
+
+        -   name: objaverse
+            root_dir: /data/datasets/Headspace/rendering
+            meta_path:
+                train: /data/datasets/Headspace/all_1248.json
+                val: 
+            sample_rate: 1.0
+
+        -   name: objaverse
+            root_dir: /data/datasets/FaceVerse/rendering
+            meta_path:
+                train: /data/datasets/FaceVerse/train_2310.json
+                val: /data/datasets/FaceVerse/val_376.json
+            sample_rate: 1.0
+            
+    sample_side_views: 3
+    source_image_res: 224
+    render_image_res: 192
+    normalize_camera: true
+    normed_dist_to_center: auto
+    synth_focal: 0.75
+    num_train_workers: 16
+    num_val_workers: 8
+    pin_mem: true
+
+train:
+    synth_focal: 0.75
+    render_size: 192
+    num_sampling: 8000
+    mixed_precision: bf16  # REPLACE THIS BASED ON GPU TYPE
+    find_unused_parameters: true  # CHECK this param!!!!
+    loss:
+        pixel_weight: 0.5
+        perceptual_weight: 0.5
+        dssim_weight: 0.5
+        lmk_weight: 0.01
+        shape_reg_weight: 1e-05
+        expr_reg_weight: 1e-05
+        mask_weight: 0.0
+        depth_weight: 0.5
+        normal_weight: 0.5
+        
+    optim:
+        lr: 4e-4
+        weight_decay: 0.05
+        beta1: 0.9
+        beta2: 0.95
+        clip_grad_norm: 1.0
+    scheduler:
+        type: cosine
+        warmup_real_iters: 3000
+    batch_size: 16  # REPLACE THIS (PER GPU)
+    accum_steps: 1  # REPLACE THIS
+    epochs: 300  
+    debug_global_steps: null
+
+val:
+    batch_size: 8
+    global_step_period: 1000
+    debug_batches: null
+
+saver:
+    auto_resume: true
+    load_model: /workspace/projects/OpenLRM/exps/releases/lrm-base/mix/step_605600/model.safetensors
+    checkpoint_root: ./exps/checkpoints
+    checkpoint_global_steps: 1000
+    checkpoint_keep_level: 5
+
+logger:
+    stream_level: WARNING
+    log_level: INFO
+    log_root: ./exps/logs
+    tracker_root: ./exps/trackers
+    enable_profiler: false
+    trackers:
+        - tensorboard
+    image_monitor:
+        train_global_steps: 100
+        samples_per_log: 4
+
+compile:
+    suppress_errors: true
+    print_specializations: true
+    disable: true
